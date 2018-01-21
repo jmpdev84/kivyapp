@@ -3,7 +3,7 @@ kivy.require('1.10.0')
 
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.properties import StringProperty, DictProperty
+from kivy.properties import StringProperty, DictProperty, NumericProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -41,19 +41,10 @@ class PasswordScreen(Screen):
         else:
             print('incorrect password')
 
-
-#class MyButton(ButtonBehavior, Image):
-    #images = ListProperty([])
-    #def __init__(self, **kwargs):
-    #    super(MyButton, self).__init__(**kwargs)
-
-        #self.source = images.pop(0)
-        #print('Ive been called')
-        #self.background_color = 1,1,1,1
-
 class ImageScreen(Screen):
     imageGuess = StringProperty('')
     images = DictProperty({})
+    counter = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -61,19 +52,12 @@ class ImageScreen(Screen):
             self.images[i] = config.get('images', 'image%s' %i)
         print(self.images)
 
-    def reset_buttons(self):
-        for button in range(1, 10):
-            self.ids[str(button)].opacity = 1
-
-    def get_image_source(self, instance):
-        instance.source = images[0]
-        images.pop[0]
-
-
     def image_check(self, instance, id):
         instance.opacity = 0.4
         print('%s button pressed' %id)
         self.imageGuess += id
+        self.counter += 1
+        instance.text = str(self.counter)
         if len(self.imageGuess) == 3:
             print('Guess was: ' + self.imageGuess)
             if self.imageGuess == '123':
@@ -81,13 +65,15 @@ class ImageScreen(Screen):
                 #Reset buttons
                 for button in range(1, 10):
                     self.ids[str(button)].opacity = 1
+                    self.counter = 0
                 self.manager.current = 'successScrn'
             else:
                 self.imageGuess = ''
                 #Reset Buttons
                 for button in range(1, 10):
                     self.ids[str(button)].opacity = 1
-                    
+                    self.counter = 0
+
 class SuccessScreen(Screen):
     def reset(self):
         passwordField.text = ''
