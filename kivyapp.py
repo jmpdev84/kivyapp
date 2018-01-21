@@ -3,14 +3,16 @@ kivy.require('1.10.0')
 
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, DictProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.button import Button
 from kivy.uix.button import Label
+from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 
 import kivyappconfig
@@ -19,6 +21,13 @@ import os.path
 #Write default ini file if it doesn't exist
 if not os.path.isfile('kivyapp.ini'):
     kivyappconfig.setup()
+
+config = kivyappconfig.get_config_parser()
+config.read('kivyapp.ini')
+#images = []
+#for i in range(1,10):
+#    images.append(config.get('images', 'image%s' %i,))
+
 
 class PasswordScreen(Screen):
     appPassword = StringProperty()
@@ -32,22 +41,39 @@ class PasswordScreen(Screen):
         else:
             print('incorrect password')
 
+
+#class MyButton(ButtonBehavior, Image):
+    #images = ListProperty([])
+    #def __init__(self, **kwargs):
+    #    super(MyButton, self).__init__(**kwargs)
+
+        #self.source = images.pop(0)
+        #print('Ive been called')
+        #self.background_color = 1,1,1,1
+
 class ImageScreen(Screen):
     imageGuess = StringProperty('')
+    images = DictProperty({})
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        for i in range(1, 10):
+            self.images[i] = config.get('images', 'image%s' %i)
+        print(self.images)
 
     def reset_buttons(self):
         for button in range(1, 10):
             self.ids[str(button)].opacity = 1
 
-    def image_check(self, instance):
-        #print('id is ' + instance.id)
-        #instance.parent.ids.lid.text = self.get_id(instance)
-        #print(instance.parent.ids.lid.text)
-        instance.opacity = 0.5
-        #l = Label(id='lbl_1', text='1', font_size='30')
-        #instance.add_widget(l)
-        #instance.text = "1"
-        self.imageGuess += instance.text
+    def get_image_source(self, instance):
+        instance.source = images[0]
+        images.pop[0]
+
+
+    def image_check(self, instance, id):
+        instance.opacity = 0.4
+        print('%s button pressed' %id)
+        self.imageGuess += id
         if len(self.imageGuess) == 3:
             print('Guess was: ' + self.imageGuess)
             if self.imageGuess == '123':
@@ -61,12 +87,7 @@ class ImageScreen(Screen):
                 #Reset Buttons
                 for button in range(1, 10):
                     self.ids[str(button)].opacity = 1
-
-    def get_id(self,  instance):
-        for id, widget in instance.parent.ids.items():
-            if widget.__self__ == instance:
-                return str(id)
-
+                    
 class SuccessScreen(Screen):
     def reset(self):
         passwordField.text = ''
@@ -74,7 +95,7 @@ class SuccessScreen(Screen):
 
         #reset image buttons
         for button in range(1, 9):
-            print(button)
+            #print(button)
             self.ids[str(button)].opacity = 1
 
 
