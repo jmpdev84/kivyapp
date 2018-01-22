@@ -7,7 +7,6 @@ from kivy.properties import StringProperty, DictProperty, NumericProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.button import Button
@@ -22,35 +21,44 @@ import os.path
 if not os.path.isfile('kivyapp.ini'):
     kivyappconfig.setup()
 
+#Read the app settings from the ini file
 config = kivyappconfig.get_config_parser()
 config.read('kivyapp.ini')
-#images = []
-#for i in range(1,10):
-#    images.append(config.get('images', 'image%s' %i,))
-
 
 class PasswordScreen(Screen):
-    appPassword = StringProperty()
+    settings = DictProperty({})
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.settings['password'] = config.get('default', 'password', fallback='123')
+        self.settings['passwordTextLabel'] = config.get('default', 'passwordTextLabel')
+        self.settings['passwordSubmitText'] = config.get('default', 'passwordSubmitText')
+        self.settings['passwordCancelText'] = config.get('default', 'passwordCancelText')
+
     def password_check(self, password):
-        config = kivyappconfig.get_config_parser()
-        config.read('kivyapp.ini')
-        appPassword = config.get('default', 'password', fallback='123')
+        appPassword = self.settings['password']
         if password == appPassword:
             print('success')
             self.manager.current = 'imageScrn'
         else:
             print('incorrect password')
+            self.background_color = (1,1,1,1)
+            #print(self.ids['passwordField'].ba)
 
 class ImageScreen(Screen):
     imageGuess = StringProperty('')
+    imageAnswer = StringProperty('')
     images = DictProperty({})
     counter = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        #Set up images fomr ini file
         for i in range(1, 10):
             self.images[i] = config.get('images', 'image%s' %i)
-        print(self.images)
+
+        #Set up image guess length
+            self.imageAnswer = config.get('images', 'imageAnswer')
 
     def image_check(self, instance, id):
         instance.opacity = 0.4
@@ -58,23 +66,29 @@ class ImageScreen(Screen):
         self.imageGuess += id
         self.counter += 1
         instance.text = str(self.counter)
-        if len(self.imageGuess) == 3:
+        if len(self.imageGuess) == len(self.imageAnswer):
             print('Guess was: ' + self.imageGuess)
-            if self.imageGuess == '123':
+            if self.imageGuess == self.imageAnswer:
                 self.imageGuess = ''
-                #Reset buttons
+                #Reset button presses
                 for button in range(1, 10):
                     self.ids[str(button)].opacity = 1
                     self.counter = 0
                 self.manager.current = 'successScrn'
             else:
                 self.imageGuess = ''
-                #Reset Buttons
+                #Reset button presses
                 for button in range(1, 10):
                     self.ids[str(button)].opacity = 1
                     self.counter = 0
 
 class SuccessScreen(Screen):
+    successText = StringProperty('')
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        #Set up success screen text
+        self.successText = config.get('default', 'successText')
+
     def reset(self):
         passwordField.text = ''
         self.manager.current = 'passwordScrn'
