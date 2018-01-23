@@ -1,5 +1,10 @@
 import os
 os.environ['KIVY_IMAGE'] = 'pil,sdl2'
+
+from kivy.config import Config
+Config.set('graphics', 'width', '1920')
+Config.set('graphics', 'height', '1080')
+
 import kivy
 kivy.require('1.10.0')
 
@@ -75,6 +80,7 @@ class ImageScreen(Screen):
                 #Reset button presses
                 for button in range(1, 10):
                     self.ids[str(button)].opacity = 1
+                    self.ids[str(button)].text = ''
                     self.counter = 0
                 self.manager.current = 'successScrn'
             else:
@@ -82,6 +88,7 @@ class ImageScreen(Screen):
                 #Reset button presses
                 for button in range(1, 10):
                     self.ids[str(button)].opacity = 1
+                    self.ids[str(button)].text = ''
                     self.counter = 0
 
 class SuccessScreen(Screen):
@@ -108,8 +115,12 @@ presentation = Builder.load_string('''
 <Image>:
     center_y: self.parent.center_y
     center_x: self.parent.center_x
-    size: 128, 128
     allow_stretch: True
+    size: 256, 256
+    keep_ratio: True
+    size_hint_y: None
+    size_hint_x: None
+    height: self.parent.width/self.image_ratio
 
 <Label>:
     font_size: 30
@@ -159,21 +170,18 @@ ScreenManagement:
             Button:
                 id: 1
                 font_size: 50
-                background_normal: ''
                 on_press: imageScrnId.image_check(self, '1')
                 Image:
                     source: root.images[1]
             Button:
                 id: 2
                 font_size: 50
-                background_normal: ''
                 on_press: imageScrnId.image_check(self, '2')
                 Image:
                     source: root.images[2]
             Button:
                 id: 3
                 font_size: 50
-                background_normal: ''
                 on_press: imageScrnId.image_check(self, '3')
                 Image:
                     source: root.images[3]
@@ -182,21 +190,18 @@ ScreenManagement:
             Button:
                 id: 4
                 font_size: 50
-                background_normal: ''
                 on_press: imageScrnId.image_check(self, '4')
                 Image:
                     source: root.images[4]
             Button:
                 id: 5
                 font_size: 50
-                background_normal: ''
                 on_press: imageScrnId.image_check(self, '5')
                 Image:
                     source: root.images[5]
             Button:
                 id: 6
                 font_size: 50
-                background_normal: ''
                 on_press: imageScrnId.image_check(self, '6')
                 Image:
                     source: root.images[6]
@@ -205,21 +210,18 @@ ScreenManagement:
             Button:
                 id: 7
                 font_size: 50
-                background_normal: ''
                 on_press: imageScrnId.image_check(self, '7')
                 Image:
                     source: root.images[7]
             Button:
                 id: 8
                 font_size: 50
-                background_normal: ''
                 on_press: imageScrnId.image_check(self, '8')
                 Image:
                     source: root.images[8]
             Button:
                 id: 9
                 font_size: 50
-                background_normal: ''
                 on_press: imageScrnId.image_check(self, '9')
                 Image:
                     source: root.images[9]
